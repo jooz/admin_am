@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  FormGroup,
   FormControlLabel,
   Button,
   Stack,
