@@ -57,7 +57,7 @@ const Login2 = () => {
                       color="textSecondary"
                       mb={1}
                     >
-                      Your Social Campaigns
+                      Alcaldía del Municipio Miranda
                     </Typography>
                   }
                   subtitle={
@@ -73,9 +73,34 @@ const Login2 = () => {
                 />
               </Card>
 
-
             </Grid>
           </Grid>
+          {/* Footer Copyright */}
+          <Box
+            position="absolute"
+            bottom={0}
+            left={0}
+            right={0}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            p={2}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                color: "text.secondary",
+                textAlign: "center",
+                mt: 6,
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                lineHeight: 1.4
+              }}
+            >
+              © 2026 Alcaldía del Municipio Miranda. <br /> Todos los derechos reservados.<br /> Desarrollado por <a href="https://grupojooz.vercel.app" target="_blank">Grupo Jooz</a>
+            </Typography>
+          </Box>
         </Box>
       </PageContainer>
     </SessionProvider>
