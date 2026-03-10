@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  CITIZEN
+}
+
+enum RequestStatus {
+  PENDING
+  REVIEWING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum ReportPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  role          UserRole  @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  reports       Report[]
+  socialRequests SocialAssistance[]
+}
+
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  excerpt     String?
+  image       String?
+  published   Boolean  @default(false)
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  image       String?
+  link        String?
+  status      String?  @default("En progreso")
+  createdAt   DateTime @default(now())
+}
+
+// Modelo escalable para Atención Social (Ayudas y Donaciones Médicas)
+model SocialAssistance {
+  id              String        @id @default(cuid())
+  fullName        String
+  dni             String
+  phone           String
+  email           String?
+  address         String        @db.Text
+  requestType     String        // Ejemplo: "Donación Médica", "Ayuda Económica", "Insumos"
+  description     String        @db.Text
+  attachments     String[]      // URLs a informes médicos o requisitos
+  status          RequestStatus @default(PENDING)
+  observations    String?       @db.Text
+  userId          String?       // Opcional: si el ciudadano tiene cuenta
+  user            User?         @relation(fields: [userId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// Modelo para Atención al Ciudadano (Denuncias y Reportes)
+model Report {
+  id              String         @id @default(cuid())
+  title           String
+  description     String         @db.Text
+  location        String?        // Dirección del incidente
+  category        String         // Ejemplo: "Alumbrado", "Aseo", "Vialidad"
+  priority        ReportPriority @default(MEDIUM)
+  status          RequestStatus  @default(PENDING)
+  images          String[]       // URLs de evidencias
+  userId          String?
+  user            User?          @relation(fields: [userId], references: [id])
+  anonymous       Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// Modelo para el Chatbot y Base de Conocimientos futura
+model KnowledgeBase {
+  id          String   @id @default(cuid())
+  question    String   @db.Text
+  answer      String   @db.Text
+  category    String?
+  tags        String[]
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EmergencyContact {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  active      Boolean  @default(true)
+}
+
+model Banner {
+  id          String   @id @default(cuid())
+  title       String?
+  subtitle    String?
+  image       String
+  link        String?
+  priority    Int      @default(0)
+  active      Boolean  @default(true)
+}
+
+model Ordinance {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  number      String?  // Ej: 001-2024
+  date        DateTime?
+  description String?  @db.Text
+  category    String?
+  status      String?  @default("Vigente") // Vigente, Derogada, Reformada
+  image       String?
+  pdfUrl      String?
+  published   Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gazette {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  number      String?  // Ej: Extraordinaria N° 450
+  date        DateTime?
+  pdfUrl      String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
