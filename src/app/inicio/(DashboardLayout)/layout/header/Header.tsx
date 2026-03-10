@@ -61,7 +61,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
           </Badge>
 
         </IconButton>
-        <Box flexGrow={1} />
+        <Box flexGrow={2} />
         <Stack spacing={1} direction="row" alignItems="center">
 
           <Profile />

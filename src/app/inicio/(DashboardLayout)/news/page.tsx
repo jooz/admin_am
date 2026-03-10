@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Box,
     Typography,
@@ -57,6 +57,16 @@ const NewsCreatePage = () => {
     const router = useRouter();
     const { data: session } = useSession();
 
+    // Auto-hide success message after 5 seconds
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                setSuccess("");
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [success]);
+
     const {
         register,
         handleSubmit,
@@ -79,9 +89,9 @@ const NewsCreatePage = () => {
     const watchCategory = watch("category");
     const watchExcerpt = watch("excerpt");
     const watchImage = watch("image");
-    
+
     // Autogenerate slug for preview
-    const generatedSlug = watchTitle 
+    const generatedSlug = watchTitle
         ? watchTitle.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, '')
         : "";
 
@@ -132,13 +142,17 @@ const NewsCreatePage = () => {
             }
 
             const response = await fetch('/api/news', { method: 'POST', body: formData });
-            
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Hubo un problema al crear la noticia");
             }
 
             setSuccess("¡Noticia creada exitosamente!");
+            // Limpiar el formulario después de crear exitosamente
+            reset();
+            setImagePreview("");
+            setSelectedImage(null);
             setTimeout(() => {
                 router.push("/inicio/news");
             }, 2000);
@@ -174,7 +188,20 @@ const NewsCreatePage = () => {
             )}
 
             {success && (
-                <Alert severity="success" sx={{ mb: 3 }}>
+                <Alert
+                    severity="success"
+                    sx={{ mb: 3 }}
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setSuccess("")}
+                        >
+                            <IconX size={20} />
+                        </IconButton>
+                    }
+                >
                     <AlertTitle>Éxito</AlertTitle>
                     {success}
                 </Alert>
@@ -401,7 +428,7 @@ const NewsCreatePage = () => {
                                         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {watchExcerpt || "Este es un extracto de ejemplo de la noticia que muestra cómo se verá el texto en la plataforma para los ciudadanos..."}
                                         </Typography>
-                                        
+
                                         <Typography variant="body2" fontWeight="bold" color="#1d4ed8" sx={{ display: 'flex', alignItems: 'center' }}>
                                             Leer más <IconArrowRight size={16} style={{ marginLeft: 4 }} />
                                         </Typography>

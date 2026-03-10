@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Menuitems from "./MenuItems";
-import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Collapse } from "@mui/material";
 import { IconAperture, IconCopy, IconLayoutDashboard, IconLogin, IconMoodHappy, IconTypography, IconUserPlus } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,7 +17,6 @@ const renderMenuItems = (items: any, pathDirect: any) => {
           <Typography variant="overline" fontWeight="600" sx={{ ml: 2, mt: 2 }}>
             {item.subheader}
           </Typography>
-          <Divider />
         </Box>
       );
     }
@@ -103,7 +102,6 @@ const SidebarItems = () => {
           </Box>
         </Link>
       </Box>
-      <Divider />
       <List sx={{ mt: 2 }}>
         {renderMenuItems(Menuitems, pathDirect)}
       </List>

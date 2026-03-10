@@ -12,7 +12,7 @@ import {
   ListItemText,
 } from "@mui/material";
 
-import { IconListCheck, IconMail, IconUser } from "@tabler/icons-react";
+import { IconListCheck, IconMail, IconUser, IconLogout } from "@tabler/icons-react";
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
@@ -68,29 +68,31 @@ const Profile = () => {
           <ListItemIcon>
             <IconUser width={20} />
           </ListItemIcon>
-          <ListItemText>My Profile</ListItemText>
+          <ListItemText>Mi Perfil</ListItemText>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconMail width={20} />
           </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
+          <ListItemText>Mi Cuenta</ListItemText>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconListCheck width={20} />
           </ListItemIcon>
-          <ListItemText>My Tasks</ListItemText>
+          <ListItemText>Mis Tareas</ListItemText>
         </MenuItem>
         <Box mt={1} py={1} px={2}>
           <Button
-            href="/authentication/login"
+            href="/api/auth/signout?callbackUrl=/"
             variant="outlined"
             color="primary"
             component={Link}
             fullWidth
+            startIcon={<IconLogout width={20} />}
+            sx={{ fontSize: '11px' }}
           >
-            Logout
+            Cerrar Sesión
           </Button>
         </Box>
       </Menu>
