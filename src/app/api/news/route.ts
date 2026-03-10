@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { mkdir } from 'fs/promises';
+import { put } from '@vercel/blob';
 
 export async function POST(request: Request) {
     try {
@@ -22,28 +20,24 @@ export async function POST(request: Request) {
 
         let finalImageUrl = "";
 
-        // Si se subió un archivo (typeof File)
+        // Si se subió un archivo (File) lo enviamos a Vercel Blob
         if (imageFile && typeof imageFile !== 'string') {
             const file = imageFile as File;
-            const bytes = await file.arrayBuffer();
-            const buffer = Buffer.from(bytes);
 
+            // Generamos un nombre limpio para el archivo
             const timestamp = Date.now();
             const filename = `${timestamp}-${file.name.replace(/\s+/g, '_')}`;
-            const uploadDir = join(process.cwd(), 'public/uploads');
 
-            try {
-                await mkdir(uploadDir, { recursive: true });
-            } catch (e) {
-                // Ignore if directory already exists
-            }
+            // Subida a Vercel Blob
+            const blob = await put(filename, file, {
+                access: 'public',
+                // El token se toma automáticamente de la variable BLOB_READ_WRITE_TOKEN
+            });
 
-            const path = join(uploadDir, filename);
-            await writeFile(path, buffer);
-            finalImageUrl = `/uploads/${filename}`;
+            finalImageUrl = blob.url;
 
         } else if (typeof imageFile === 'string') {
-            // Si es una URL provista en el campo de texto
+            // Si es una URL provista directamente en el campo de texto
             finalImageUrl = imageFile;
         }
 
@@ -63,9 +57,10 @@ export async function POST(request: Request) {
     } catch (error: any) {
         console.error('Error creating news:', error);
 
-        // Handle Prisma unique constraint error for slugs
         if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
-            return NextResponse.json({ error: 'Ya existe una noticia con ese slug o título similar. Por favor modifique el título.' }, { status: 409 });
+            return NextResponse.json({
+                error: 'Ya existe una noticia con ese slug o título similar. Por favor modifique el título.'
+            }, { status: 409 });
         }
 
         return NextResponse.json({ error: 'Failed to create news' }, { status: 500 });

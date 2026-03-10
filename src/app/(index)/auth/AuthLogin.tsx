@@ -44,7 +44,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
     if (result?.error) {
       setError("Credenciales inválidas. Por favor intente de nuevo.");
     } else {
-      router.push("/inicio");
+      router.push("/inicio/news");
     }
   };
 

@@ -33,10 +33,12 @@ model User {
   email         String?   @unique
   password      String?
   role          UserRole  @default(ADMIN)
+  active        Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   reports       Report[]
   socialRequests SocialAssistance[]
+  menuPermissions UserMenuPermission[]
 }
 
 model News {
@@ -154,4 +156,45 @@ model Gazette {
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// Modelo para el Sistema de Menú Dinámico
+model MenuItem {
+  id          String        @id @default(cuid())
+  label       String
+  icon        String?
+  path        String
+  order       Int           @default(0)
+  active      Boolean       @default(true)
+  
+  // Relación de auto-referencia para submenús
+  parentId    String?
+  parent      MenuItem?     @relation("MenuItemParent", fields: [parentId], references: [id], onDelete: Cascade)
+  children    MenuItem[]    @relation("MenuItemParent")
+  
+  // Relación con permisos de usuario
+  userPermissions UserMenuPermission[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// Modelo de tabla de unión para permisos de menú por usuario
+model UserMenuPermission {
+  id          String        @id @default(cuid())
+  userId      String
+  menuId      String
+  canRead     Boolean       @default(true)
+  canWrite    Boolean       @default(false)
+  canDelete   Boolean       @default(false)
+  
+  // Relaciones
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menuItem    MenuItem      @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Índice único para evitar duplicados
+  @@unique([userId, menuId])
 }

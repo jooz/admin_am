@@ -1,10 +1,7 @@
 "use client";
-import Link from "next/link";
 import { Grid, Box, Card, Stack, Typography } from "@mui/material";
 import { SessionProvider } from "next-auth/react";
-// components
 import PageContainer from "@/app/inicio/(DashboardLayout)/components/container/PageContainer";
-import Logo from "@/app/inicio/(DashboardLayout)/layout/shared/logo/Logo";
 import AuthLogin from "./auth/AuthLogin";
 import Image from "next/image";
 import logomiranda from "./../../../public/logomiranda.jpeg"
