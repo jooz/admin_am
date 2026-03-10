@@ -13,7 +13,6 @@ export default withAuth(
         // Rutas públicas que no requieren sesión
         if (
           path.startsWith("/login") ||
-          path.startsWith("/register") ||
           path.startsWith("/auth") ||
           (path.startsWith("/api/news") && req.method === "GET")
         ) {
