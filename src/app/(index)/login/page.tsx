@@ -4,8 +4,9 @@ import { Grid, Box, Card, Stack, Typography } from "@mui/material";
 import { SessionProvider } from "next-auth/react";
 // components
 import PageContainer from "@/app/inicio/(DashboardLayout)/components/container/PageContainer";
-import Logo from "@/app/inicio/(DashboardLayout)/layout/shared/logo/Logo";
 import AuthLogin from "../auth/AuthLogin";
+import Image from "next/image";
+import logomiranda from "./../../../../public/logomiranda.jpeg"
 
 const Login2 = () => {
   return (
@@ -47,7 +48,7 @@ const Login2 = () => {
                 sx={{ p: 4, zIndex: 1, width: "100%", maxWidth: "500px" }}
               >
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <Logo />
+                  <Image src={logomiranda} alt="Logo Miranda" width={100} height={100} />
                 </Box>
                 <AuthLogin
                   subtext={
