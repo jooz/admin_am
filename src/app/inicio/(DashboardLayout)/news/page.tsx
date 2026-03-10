@@ -181,7 +181,7 @@ const NewsCreatePage = () => {
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
+                    <Grid size={{ xs: 12, md: 8 }}>
                         <TextField
                             {...register("title", { required: "El título es obligatorio" })}
                             label="Título"
@@ -257,7 +257,7 @@ const NewsCreatePage = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Card variant="outlined">
                             <CardContent>
                                 <Typography variant="h6" mb={2}>Vista Previa</Typography>
