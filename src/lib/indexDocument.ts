@@ -1,5 +1,18 @@
+import { env, pipeline } from '@xenova/transformers';
 import { getEmbedding } from './embeddings';
 import { prisma } from './prisma';
+
+// 1. Deshabilitar modelos locales (Vercel no tiene un sistema de archivos persistente)
+env.allowLocalModels = false;
+
+// 2. Deshabilitar el caché del navegador (estamos en el servidor)
+env.useBrowserCache = false;
+
+// 3. ¡Lo más importante! Limitar los hilos de WASM
+env.backends.onnx.wasm.numThreads = 1;
+
+// 4. Directorio de caché para Vercel
+env.cacheDir = '/tmp/transformers-cache';
 
 /**
  * Divide un texto en fragmentos (chunks)

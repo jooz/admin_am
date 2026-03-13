@@ -4,6 +4,7 @@ import { pipeline, env } from '@xenova/transformers';
 // Esto evita el error de libonnxruntime.so al usar el backend de WASM
 env.backends.onnx.wasm.numThreads = 1;
 env.allowLocalModels = false;
+env.useBrowserCache = false;
 env.cacheDir = '/tmp/transformers-cache';
 
 import { prisma } from './prisma';
