@@ -61,6 +61,7 @@ export async function indexDocument(content: string, source: string, sourceId?: 
     console.warn('Indexing skipped: Transformers is disabled for Vercel compatibility.');
     break; // Prevent loop if disabled
 
+    /*
     // Insertar usando SQL raw para el campo Unsupported vector
     await prisma.$executeRawUnsafe(`
       INSERT INTO "DocumentChunk" (id, content, source, "sourceId", embedding, "createdAt")
@@ -73,6 +74,7 @@ export async function indexDocument(content: string, source: string, sourceId?: 
         NOW()
       )
     `, chunk, source, sourceId || null);
+    */
   }
 
   return chunks.length;
