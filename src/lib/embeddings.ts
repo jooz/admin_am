@@ -1,4 +1,11 @@
-import { pipeline } from '@xenova/transformers';
+import { pipeline, env } from '@xenova/transformers';
+
+// Configuración para compatibilidad con Vercel Serverless Functions
+// Esto evita el error de libonnxruntime.so al usar el backend de WASM
+env.backends.onnx.wasm.numThreads = 1;
+env.allowLocalModels = false;
+env.cacheDir = '/tmp/transformers-cache';
+
 import { prisma } from './prisma';
 
 let extractor: any = null;
