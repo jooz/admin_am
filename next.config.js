@@ -1,16 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  images: { unoptimized: true },
+  serverExternalPackages: ['@xenova/transformers'],
 
-  webpack: (config, { isServer }) => {
-    // Esto evita que busque el archivo nativo .so en Vercel
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      "onnxruntime-node": false,
-    };
-
-    return config;
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        "onnxruntime-node": false,
+      },
+    },
   },
 };
 
