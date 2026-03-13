@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { put } from '@vercel/blob';
-import { indexDocument } from '@/lib/indexDocument';
+// import { indexDocument } from '@/lib/indexDocument';
 
 export async function POST(request: Request) {
     try {
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
             }
         });
 
+        /* 
         // Indexar en el RAG si está publicada
         if (published) {
             const contentLine = `Noticia: ${title}. Contenido: ${content}`;
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
                 console.error('Error indexing news:', err)
             );
         }
+        */
 
         return NextResponse.json(news, { status: 201 });
     } catch (error: any) {
