@@ -16,16 +16,20 @@ const Menuitems = [
 
   {
     navlabel: true,
-    subheader: "EXTRA",
+    subheader: "Chatbot",
   },
   {
     id: uniqueId(),
-    title: "Noticias",
-    icon: IconAperture,
-    href: "inicio/news",
+    title: "Base de Conocimiento",
+    icon: IconTypography,
+    href: "/inicio/chatbot/knowledge",
   },
-
-
+  {
+    id: uniqueId(),
+    title: "Configuración",
+    icon: IconCopy,
+    href: "/inicio/chatbot/config",
+  },
 ];
 
 export default Menuitems;

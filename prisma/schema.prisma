@@ -198,3 +198,20 @@ model UserMenuPermission {
   // Índice único para evitar duplicados
   @@unique([userId, menuId])
 }
+// Modelo para configuración del Chatbot
+model ChatConfig {
+  id              String   @id @default(cuid())
+  botName         String   @default("Asistente Virtual")
+  welcomeMessage  String   @default("¡Hola! Soy el asistente inteligente de la Alcaldía de Miranda. ¿En qué puedo ayudarte hoy?")
+  enabled         Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
+model DocumentChunk {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  source    String // "alcalde", "directivo", "noticia", "gaceta", "ordenanza"
+  sourceId  String? // ID del registro original si aplica
+  embedding Unsupported("vector(384)")? // pgvector
+  createdAt DateTime @default(now())
+}

@@ -14,7 +14,9 @@ export default withAuth(
         if (
           path.startsWith("/login") ||
           path.startsWith("/auth") ||
-          (path.startsWith("/api/news") && req.method === "GET")
+          (path.startsWith("/api/news") && req.method === "GET") ||
+          path.startsWith("/api/chat") ||
+          path.startsWith("/api/chat-config")
         ) {
           return true;
         }
