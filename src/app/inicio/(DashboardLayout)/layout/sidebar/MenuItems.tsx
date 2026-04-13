@@ -6,29 +6,28 @@ import {
   IconMoodHappy,
   IconTypography,
   IconUserPlus,
+  IconNewSection,
+  IconEdit,
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
 
 const Menuitems = [
-
-
-
   {
     navlabel: true,
-    subheader: "Chatbot",
+    subheader: "Noticias",
   },
   {
     id: uniqueId(),
-    title: "Base de Conocimiento",
-    icon: IconTypography,
-    href: "/inicio/chatbot/knowledge",
+    title: "Registro de Noticias",
+    icon: IconNewSection,
+    href: "/inicio/news",
   },
   {
     id: uniqueId(),
-    title: "Configuración",
-    icon: IconCopy,
-    href: "/inicio/chatbot/config",
+    title: "Edición de Noticias",
+    icon: IconEdit,
+    href: "/inicio/news/edit",
   },
 ];
 

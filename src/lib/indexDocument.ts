@@ -1,20 +1,5 @@
-// import { env, pipeline } from '@xenova/transformers';
 import { getEmbedding } from './embeddings';
 import { prisma } from './prisma';
-
-/*
-// 1. Deshabilitar modelos locales (Vercel no tiene un sistema de archivos persistente)
-env.allowLocalModels = false;
-
-// 2. Deshabilitar el caché del navegador (estamos en el servidor)
-env.useBrowserCache = false;
-
-// 3. ¡Lo más importante! Limitar los hilos de WASM
-env.backends.onnx.wasm.numThreads = 1;
-
-// 4. Directorio de caché para Vercel
-env.cacheDir = '/tmp/transformers-cache';
-*/
 
 /**
  * Divide un texto en fragmentos (chunks)
@@ -55,13 +40,9 @@ export async function indexDocument(content: string, source: string, sourceId?: 
 
   // 3. Generar embeddings y guardar cada fragmento
   for (const chunk of chunks) {
-    // const embedding = await getEmbedding(chunk);
-    // const vectorStr = `[${embedding.join(',')}]`;
-    
-    console.warn('Indexing skipped: Transformers is disabled for Vercel compatibility.');
-    break; // Prevent loop if disabled
+    const embedding = await getEmbedding(chunk);
+    const vectorStr = `[${embedding.join(',')}]`;
 
-    /*
     // Insertar usando SQL raw para el campo Unsupported vector
     await prisma.$executeRawUnsafe(`
       INSERT INTO "DocumentChunk" (id, content, source, "sourceId", embedding, "createdAt")
@@ -74,7 +55,6 @@ export async function indexDocument(content: string, source: string, sourceId?: 
         NOW()
       )
     `, chunk, source, sourceId || null);
-    */
   }
 
   return chunks.length;
