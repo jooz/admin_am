@@ -3,7 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -207,11 +208,13 @@ model ChatConfig {
   updatedAt       DateTime @updatedAt
 }
 
-model DocumentChunk {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
-  source    String // "alcalde", "directivo", "noticia", "gaceta", "ordenanza"
-  sourceId  String? // ID del registro original si aplica
-  embedding Unsupported("vector(384)")? // pgvector
-  createdAt DateTime @default(now())
-}
+// DocumentChunk - Deshabilitado para MySQL (pgvector no soportado)
+// Para usar embeddings, considerar alternativa como Pinecone o ChromaDB
+// model DocumentChunk {
+//   id        String   @id @default(cuid())
+//   content   String   @db.Text
+//   source    String
+//   sourceId  String?
+//   embedding Unsupported("vector(384)")?
+//   createdAt DateTime @default(now())
+// }

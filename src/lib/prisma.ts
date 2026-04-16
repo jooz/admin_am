@@ -1,10 +1,15 @@
 import { PrismaClient } from '@prisma/client'
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 const prismaClientSingleton = () => {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-    const adapter = new PrismaPg(pool)
+    const adapter = new PrismaMariaDb({
+        host: process.env.DATABASE_HOST || 'localhost',
+        user: process.env.USUARIO,
+        password: process.env.CLAVE,
+        database: process.env.DATABASE,
+        port: Number(process.env.DATABASE_PORT) || 3306,
+        connectionLimit: 5,
+    })
     return new PrismaClient({ adapter })
 }
 
