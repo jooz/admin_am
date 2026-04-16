@@ -26,7 +26,7 @@ export default withAuth(
       },
     },
     pages: {
-      signIn: '/login', // Redirige aquí si no está autenticado
+      signIn: '/auth', // Redirige aquí si no está autenticado
     }
   }
 );
