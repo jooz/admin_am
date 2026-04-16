@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { put } from '@vercel/blob';
-import { indexDocument } from '@/lib/indexDocument';
 
 export async function POST(request: Request) {
     try {
@@ -55,13 +54,12 @@ export async function POST(request: Request) {
         });
 
         // Indexar en el RAG si está publicada
-        if (published) {
-            const contentLine = `Noticia: ${title}. Contenido: ${content}`;
-            // No esperamos a que termine para no bloquear la respuesta
-            indexDocument(contentLine, 'noticia', news.id).catch(err => 
-                console.error('Error indexing news:', err)
-            );
-        }
+        // if (published) {
+        //     const contentLine = `Noticia: ${title}. Contenido: ${content}`;
+        //     indexDocument(contentLine, 'noticia', news.id).catch(err => 
+        //         console.error('Error indexing news:', err)
+        //     );
+        // }
 
         return NextResponse.json(news, { status: 201 });
     } catch (error: any) {
@@ -201,12 +199,12 @@ export async function PUT(request: Request) {
             }
         });
 
-        if (published) {
-            const contentLine = `Noticia: ${title}. Contenido: ${content}`;
-            indexDocument(contentLine, 'noticia', news.id).catch(err => 
-                console.error('Error indexing news:', err)
-            );
-        }
+        // if (published) {
+        //     const contentLine = `Noticia: ${title}. Contenido: ${content}`;
+        //     indexDocument(contentLine, 'noticia', news.id).catch(err => 
+        //         console.error('Error indexing news:', err)
+        //     );
+        // }
 
         return NextResponse.json(news);
     } catch (error: any) {
