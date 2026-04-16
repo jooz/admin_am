@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -75,7 +74,7 @@ model SocialAssistance {
   address         String        @db.Text
   requestType     String        // Ejemplo: "Donación Médica", "Ayuda Económica", "Insumos"
   description     String        @db.Text
-  attachments     String[]      // URLs a informes médicos o requisitos
+  attachments     Json          // URLs a informes médicos o requisitos
   status          RequestStatus @default(PENDING)
   observations    String?       @db.Text
   userId          String?       // Opcional: si el ciudadano tiene cuenta
@@ -93,7 +92,7 @@ model Report {
   category        String         // Ejemplo: "Alumbrado", "Aseo", "Vialidad"
   priority        ReportPriority @default(MEDIUM)
   status          RequestStatus  @default(PENDING)
-  images          String[]       // URLs de evidencias
+  images          Json           // URLs de evidencias
   userId          String?
   user            User?          @relation(fields: [userId], references: [id])
   anonymous       Boolean        @default(false)
@@ -107,7 +106,7 @@ model KnowledgeBase {
   question    String   @db.Text
   answer      String   @db.Text
   category    String?
-  tags        String[]
+  tags        Json
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
