@@ -19,6 +19,7 @@
     "@mui/lab": "^7.0.1-beta.19",
     "@mui/material": "^7.3.5",
     "@mui/x-date-pickers": "^8.27.2",
+    "@prisma/adapter-mariadb": "^7.7.0",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@tabler/icons-react": "^3.40.0",
