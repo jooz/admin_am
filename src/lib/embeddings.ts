@@ -45,10 +45,14 @@ export async function getEmbedding(text: string): Promise<number[]> {
 }
 
 export async function searchSimilarChunks(query: string, limit: number = 5) {
+  // NOTA: MySQL/MariaDB en cPanel no soporta búsqueda vectorial nativa (::vector de Postgres)
+  // Por ahora devolvemos un array vacío para evitar errores 500 hasta que se configure un motor compatible (ej: Pinecone o Chroma)
+  return [];
+
+  /* 
   const embedding = await getEmbedding(query);
   const vectorStr = `[${embedding.join(',')}]`;
 
-  // Búsqueda vectorial usando SQL raw porque Prisma no soporta búsqueda vectorial nativa aún
   const chunks = await prisma.$queryRawUnsafe(`
     SELECT id, content, source, "sourceId", (embedding <=> '${vectorStr}'::vector) as distance
     FROM "DocumentChunk"
@@ -57,4 +61,5 @@ export async function searchSimilarChunks(query: string, limit: number = 5) {
   `);
 
   return chunks as any[];
+  */
 }

@@ -1,7 +1,20 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 const prismaClientSingleton = () => {
-    return new PrismaClient()
+    const adapter = new PrismaMariaDb({
+        host: process.env.DATABASE_HOST || process.env.HOST || 'localhost',
+        user: process.env.USUARIO,
+        password: process.env.CLAVE,
+        database: process.env.DATABASE,
+        port: Number(process.env.DATABASE_PORT) || 3306,
+        connectionLimit: 5,
+    })
+    
+    return new PrismaClient({ 
+        adapter,
+        log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']
+    })
 }
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
