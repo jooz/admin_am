@@ -63,15 +63,24 @@ export async function POST(request: Request) {
 
         return NextResponse.json(news, { status: 201 });
     } catch (error: any) {
-        console.error('Error creating news:', error);
+        console.error('SERVER_ERROR [NEWS_POST]:', error);
 
-        if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
-            return NextResponse.json({
-                error: 'Ya existe una noticia con ese slug o título similar. Por favor modifique el título.'
-            }, { status: 409 });
+        // Error de duplicado (Slug)
+        if (error.code === 'P2002') {
+            const target = error.meta?.target || '';
+            if (typeof target === 'string' && target.includes('slug')) {
+                return NextResponse.json({
+                    error: 'Ya existe una noticia con ese slug o título similar. Por favor modifique el título.'
+                }, { status: 409 });
+            }
         }
 
-        return NextResponse.json({ error: 'Failed to create news' }, { status: 500 });
+        // Otros errores de Prisma
+        if (error.code) {
+            return NextResponse.json({ error: `Database error (${error.code}): ${error.message}` }, { status: 500 });
+        }
+
+        return NextResponse.json({ error: error.message || 'Failed to create news' }, { status: 500 });
     }
 }
 

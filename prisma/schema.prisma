@@ -1,9 +1,182 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
   provider = "mysql"
+}
+
+model User {
+  id              String               @id @default(cuid())
+  name            String?
+  email           String?              @unique
+  password        String?
+  role            UserRole             @default(ADMIN)
+  active          Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  reports         Report[]
+  socialRequests  SocialAssistance[]
+  menuPermissions UserMenuPermission[]
+}
+
+model News {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  excerpt   String?
+  image     String?
+  published Boolean  @default(false)
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  image       String?
+  link        String?
+  status      String?  @default("En progreso")
+  createdAt   DateTime @default(now())
+}
+
+model SocialAssistance {
+  id           String        @id @default(cuid())
+  fullName     String
+  dni          String
+  phone        String
+  email        String?
+  address      String        @db.Text
+  requestType  String
+  description  String        @db.Text
+  attachments  Json
+  status       RequestStatus @default(PENDING)
+  observations String?       @db.Text
+  userId       String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User?         @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "SocialAssistance_userId_fkey")
+}
+
+model Report {
+  id          String         @id @default(cuid())
+  title       String
+  description String         @db.Text
+  location    String?
+  category    String
+  priority    ReportPriority @default(MEDIUM)
+  status      RequestStatus  @default(PENDING)
+  images      Json
+  userId      String?
+  anonymous   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  user        User?          @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Report_userId_fkey")
+}
+
+model KnowledgeBase {
+  id        String   @id @default(cuid())
+  question  String   @db.Text
+  answer    String   @db.Text
+  category  String?
+  tags      Json
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmergencyContact {
+  id     String  @id @default(cuid())
+  name   String
+  phone  String
+  active Boolean @default(true)
+}
+
+model Banner {
+  id       String  @id @default(cuid())
+  title    String?
+  subtitle String?
+  image    String
+  link     String?
+  priority Int     @default(0)
+  active   Boolean @default(true)
+}
+
+model Ordinance {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  number      String?
+  date        DateTime?
+  description String?   @db.Text
+  category    String?
+  status      String?   @default("Vigente")
+  image       String?
+  pdfUrl      String?
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Gazette {
+  id        String    @id @default(cuid())
+  title     String
+  slug      String    @unique
+  number    String?
+  date      DateTime?
+  pdfUrl    String?
+  published Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model MenuItem {
+  id              String               @id @default(cuid())
+  label           String
+  icon            String?
+  path            String
+  order           Int                  @default(0)
+  active          Boolean              @default(true)
+  parentId        String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  parent          MenuItem?            @relation("MenuItemParent", fields: [parentId], references: [id], onDelete: Cascade)
+  children        MenuItem[]           @relation("MenuItemParent")
+  userPermissions UserMenuPermission[]
+
+  @@index([parentId], map: "MenuItem_parentId_fkey")
+}
+
+model UserMenuPermission {
+  id        String   @id @default(cuid())
+  userId    String
+  menuId    String
+  canRead   Boolean  @default(true)
+  canWrite  Boolean  @default(false)
+  canDelete Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  menuItem  MenuItem @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, menuId])
+  @@index([menuId], map: "UserMenuPermission_menuId_fkey")
+}
+
+model ChatConfig {
+  id             String   @id @default(cuid())
+  botName        String   @default("Asistente Virtual")
+  welcomeMessage String   @default("¡Hola! Soy el asistente inteligente de la Alcaldía de Miranda. ¿En qué puedo ayudarte hoy?")
+  enabled        Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
 }
 
 enum UserRole {
@@ -26,194 +199,3 @@ enum ReportPriority {
   HIGH
   URGENT
 }
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  password      String?
-  role          UserRole  @default(ADMIN)
-  active        Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  reports       Report[]
-  socialRequests SocialAssistance[]
-  menuPermissions UserMenuPermission[]
-}
-
-model News {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  content     String   @db.Text
-  excerpt     String?
-  image       String?
-  published   Boolean  @default(false)
-  category    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Project {
-  id          String   @id @default(cuid())
-  title       String
-  description String   @db.Text
-  image       String?
-  link        String?
-  status      String?  @default("En progreso")
-  createdAt   DateTime @default(now())
-}
-
-// Modelo escalable para Atención Social (Ayudas y Donaciones Médicas)
-model SocialAssistance {
-  id              String        @id @default(cuid())
-  fullName        String
-  dni             String
-  phone           String
-  email           String?
-  address         String        @db.Text
-  requestType     String        // Ejemplo: "Donación Médica", "Ayuda Económica", "Insumos"
-  description     String        @db.Text
-  attachments     Json          // URLs a informes médicos o requisitos
-  status          RequestStatus @default(PENDING)
-  observations    String?       @db.Text
-  userId          String?       // Opcional: si el ciudadano tiene cuenta
-  user            User?         @relation(fields: [userId], references: [id])
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-}
-
-// Modelo para Atención al Ciudadano (Denuncias y Reportes)
-model Report {
-  id              String         @id @default(cuid())
-  title           String
-  description     String         @db.Text
-  location        String?        // Dirección del incidente
-  category        String         // Ejemplo: "Alumbrado", "Aseo", "Vialidad"
-  priority        ReportPriority @default(MEDIUM)
-  status          RequestStatus  @default(PENDING)
-  images          Json           // URLs de evidencias
-  userId          String?
-  user            User?          @relation(fields: [userId], references: [id])
-  anonymous       Boolean        @default(false)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime      @updatedAt
-}
-
-// Modelo para el Chatbot y Base de Conocimientos futura
-model KnowledgeBase {
-  id          String   @id @default(cuid())
-  question    String   @db.Text
-  answer      String   @db.Text
-  category    String?
-  tags        Json
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model EmergencyContact {
-  id          String   @id @default(cuid())
-  name        String
-  phone       String
-  active      Boolean  @default(true)
-}
-
-model Banner {
-  id          String   @id @default(cuid())
-  title       String?
-  subtitle    String?
-  image       String
-  link        String?
-  priority    Int      @default(0)
-  active      Boolean  @default(true)
-}
-
-model Ordinance {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  number      String?  // Ej: 001-2024
-  date        DateTime?
-  description String?  @db.Text
-  category    String?
-  status      String?  @default("Vigente") // Vigente, Derogada, Reformada
-  image       String?
-  pdfUrl      String?
-  published   Boolean  @default(true)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Gazette {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  number      String?  // Ej: Extraordinaria N° 450
-  date        DateTime?
-  pdfUrl      String?
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Modelo para el Sistema de Menú Dinámico
-model MenuItem {
-  id          String        @id @default(cuid())
-  label       String
-  icon        String?
-  path        String
-  order       Int           @default(0)
-  active      Boolean       @default(true)
-  
-  // Relación de auto-referencia para submenús
-  parentId    String?
-  parent      MenuItem?     @relation("MenuItemParent", fields: [parentId], references: [id], onDelete: Cascade)
-  children    MenuItem[]    @relation("MenuItemParent")
-  
-  // Relación con permisos de usuario
-  userPermissions UserMenuPermission[]
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-// Modelo de tabla de unión para permisos de menú por usuario
-model UserMenuPermission {
-  id          String        @id @default(cuid())
-  userId      String
-  menuId      String
-  canRead     Boolean       @default(true)
-  canWrite    Boolean       @default(false)
-  canDelete   Boolean       @default(false)
-  
-  // Relaciones
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  menuItem    MenuItem      @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  // Índice único para evitar duplicados
-  @@unique([userId, menuId])
-}
-// Modelo para configuración del Chatbot
-model ChatConfig {
-  id              String   @id @default(cuid())
-  botName         String   @default("Asistente Virtual")
-  welcomeMessage  String   @default("¡Hola! Soy el asistente inteligente de la Alcaldía de Miranda. ¿En qué puedo ayudarte hoy?")
-  enabled         Boolean  @default(true)
-  updatedAt       DateTime @updatedAt
-}
-
-// DocumentChunk - Deshabilitado para MySQL (pgvector no soportado)
-// Para usar embeddings, considerar alternativa como Pinecone o ChromaDB
-// model DocumentChunk {
-//   id        String   @id @default(cuid())
-//   content   String   @db.Text
-//   source    String
-//   sourceId  String?
-//   embedding Unsupported("vector(384)")?
-//   createdAt DateTime @default(now())
-// }
