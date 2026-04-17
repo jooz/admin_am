@@ -153,6 +153,9 @@ export async function GET(request: Request) {
 
         const response = NextResponse.json(news);
         response.headers.set('Cache-Control', 'no-store, max-age=0');
+        response.headers.set('Access-Control-Allow-Origin', '*');
+        response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         return response;
     } catch (error: any) {
         console.error('Error fetching news:', error);
