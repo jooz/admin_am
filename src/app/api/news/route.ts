@@ -143,7 +143,9 @@ export async function GET(request: Request) {
             }
         });
 
-        return NextResponse.json(news);
+        const response = NextResponse.json(news);
+        response.headers.set('Cache-Control', 'no-store, max-age=0');
+        return response;
     } catch (error: any) {
         console.error('Error fetching news:', error);
         return NextResponse.json({ error: 'Failed to fetch news' }, { status: 500 });
@@ -153,13 +155,18 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
+        let id = searchParams.get('id');
+
+        const formData = await request.formData();
+        
+        // Si el id no viene en la URL, lo buscamos en el formData
+        if (!id) {
+            id = formData.get('id') as string;
+        }
 
         if (!id) {
             return NextResponse.json({ error: 'ID is required' }, { status: 400 });
         }
-
-        const formData = await request.formData();
 
         const title = formData.get('title') as string;
         const slug = formData.get('slug') as string;
@@ -210,24 +217,14 @@ export async function PUT(request: Request) {
             }
         });
 
-        // if (published) {
-        //     const contentLine = `Noticia: ${title}. Contenido: ${content}`;
-        //     indexDocument(contentLine, 'noticia', news.id).catch(err => 
-        //         console.error('Error indexing news:', err)
-        //     );
-        // }
+        // Forzar que no haya caché en la respuesta
+        const response = NextResponse.json(news);
+        response.headers.set('Cache-Control', 'no-store, max-age=0');
+        return response;
 
-        return NextResponse.json(news);
     } catch (error: any) {
-        console.error('Error updating news:', error);
-
-        if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
-            return NextResponse.json({
-                error: 'Ya existe una noticia con ese slug o título similar. Por favor modifique el título.'
-            }, { status: 409 });
-        }
-
-        return NextResponse.json({ error: 'Failed to update news' }, { status: 500 });
+        console.error('SERVER_ERROR [NEWS_PUT]:', error);
+        return NextResponse.json({ error: error.message || 'Failed to update news' }, { status: 500 });
     }
 }
 

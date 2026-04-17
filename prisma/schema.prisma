@@ -25,8 +25,8 @@ model News {
   id        String   @id @default(cuid())
   title     String
   slug      String   @unique
-  content   String   @db.Text
-  excerpt   String?
+  content   String   @db.LongText
+  excerpt   String?  @db.Text
   image     String?
   published Boolean  @default(false)
   category  String?
@@ -37,7 +37,7 @@ model News {
 model Project {
   id          String   @id @default(cuid())
   title       String
-  description String   @db.Text
+  description String   @db.LongText
   image       String?
   link        String?
   status      String?  @default("En progreso")
@@ -55,7 +55,7 @@ model SocialAssistance {
   description  String        @db.Text
   attachments  Json
   status       RequestStatus @default(PENDING)
-  observations String?       @db.Text
+  observations String?       @db.LongText
   userId       String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -67,7 +67,7 @@ model SocialAssistance {
 model Report {
   id          String         @id @default(cuid())
   title       String
-  description String         @db.Text
+  description String         @db.LongText
   location    String?
   category    String
   priority    ReportPriority @default(MEDIUM)
@@ -84,8 +84,8 @@ model Report {
 
 model KnowledgeBase {
   id        String   @id @default(cuid())
-  question  String   @db.Text
-  answer    String   @db.Text
+  question  String   @db.LongText
+  answer    String   @db.LongText
   category  String?
   tags      Json
   active    Boolean  @default(true)
@@ -116,7 +116,7 @@ model Ordinance {
   slug        String    @unique
   number      String?
   date        DateTime?
-  description String?   @db.Text
+  description String?   @db.LongText
   category    String?
   status      String?   @default("Vigente")
   image       String?
