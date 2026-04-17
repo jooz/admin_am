@@ -187,8 +187,12 @@ export async function PUT(request: Request) {
         const category = formData.get('category') as string;
         const imageFile = formData.get('image');
 
+        logToFile(`RECIBIDO - Title: ${title}`);
+        logToFile(`RECIBIDO - Content Len: ${content?.length}`);
+        logToFile(`RECIBIDO - Excerpt Len: ${excerpt?.length}`);
+
         if (!title || !slug || !content) {
-            logToFile('ERROR: Missing required fields');
+            logToFile(`ERROR: Missing required fields. Title: ${!!title}, Slug: ${!!slug}, Content: ${!!content}`);
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
