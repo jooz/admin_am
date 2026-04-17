@@ -1,19 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-
-const adapter = new PrismaMariaDb({
-    host: process.env.DATABASE_HOST || 'localhost',
-    user: process.env.USUARIO,
-    password: process.env.CLAVE,
-    database: process.env.DATABASE,
-    port: Number(process.env.DATABASE_PORT) || 3306,
-    connectionLimit: 5,
-})
-
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "@/lib/prisma";
 
 export const authOptions = {
     providers: [
