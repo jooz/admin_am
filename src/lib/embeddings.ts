@@ -44,7 +44,7 @@ export async function getEmbedding(text: string): Promise<number[]> {
   }
 }
 
-export async function searchSimilarChunks(query: string, limit: number = 5) {
+export async function searchSimilarChunks(query: string, limit: number = 5): Promise<any[]> {
   // NOTA: MySQL/MariaDB en cPanel no soporta búsqueda vectorial nativa (::vector de Postgres)
   // Por ahora devolvemos un array vacío para evitar errores 500 hasta que se configure un motor compatible (ej: Pinecone o Chroma)
   return [];
