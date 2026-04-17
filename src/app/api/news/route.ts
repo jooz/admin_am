@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { put } from '@vercel/blob';
+import fs from 'fs';
+import path from 'path';
 
 export const dynamic = 'force-dynamic';
+
+function logToFile(message: string) {
+    const logPath = path.join(process.cwd(), 'prisma_debug.log');
+    const timestamp = new Date().toISOString();
+    fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`);
+}
 
 export async function POST(request: Request) {
     try {
@@ -165,8 +173,11 @@ export async function PUT(request: Request) {
         }
 
         if (!id) {
+            logToFile('ERROR: Missing ID');
             return NextResponse.json({ error: 'ID is required' }, { status: 400 });
         }
+
+        logToFile(`Attempting to update news ID: ${id}`);
 
         const title = formData.get('title') as string;
         const slug = formData.get('slug') as string;
@@ -177,6 +188,7 @@ export async function PUT(request: Request) {
         const imageFile = formData.get('image');
 
         if (!title || !slug || !content) {
+            logToFile('ERROR: Missing required fields');
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
@@ -185,6 +197,7 @@ export async function PUT(request: Request) {
         });
 
         if (!existingNews) {
+            logToFile(`ERROR: News not found with ID: ${id}`);
             return NextResponse.json({ error: 'News not found' }, { status: 404 });
         }
 
@@ -217,12 +230,15 @@ export async function PUT(request: Request) {
             }
         });
 
+        logToFile(`SUCCESS: Updated news ID: ${id}, Title: ${title}`);
+
         // Forzar que no haya caché en la respuesta
         const response = NextResponse.json(news);
         response.headers.set('Cache-Control', 'no-store, max-age=0');
         return response;
 
     } catch (error: any) {
+        logToFile(`CRITICAL ERROR [PUT]: ${error.message}`);
         console.error('SERVER_ERROR [NEWS_PUT]:', error);
         return NextResponse.json({ error: error.message || 'Failed to update news' }, { status: 500 });
     }
