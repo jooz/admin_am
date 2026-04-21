@@ -32,14 +32,14 @@ import {
 } from "@tabler/icons-react";
 
 const categoriesSpanish = [
-    "General",
-    "Anuncios",
-    "Eventos",
-    "Proyectos",
-    "Comunidad",
-    "Emergencia",
-    "Salud",
-    "Actualizaciones",
+    "Gestión",
+    "Vialidad",
+    "Ambiente",
+    "Social",
+    "Política",
+    "Turismo",
+    "Seguridad",
+    "Deporte",
 ];
 
 const NewsCreatePage = () => {
