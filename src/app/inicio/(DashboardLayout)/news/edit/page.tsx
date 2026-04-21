@@ -48,14 +48,14 @@ import {
 } from "@tabler/icons-react";
 
 const categoriesSpanish = [
-    "General",
-    "Anuncios",
-    "Eventos",
-    "Proyectos",
-    "Comunidad",
-    "Emergencia",
-    "Salud",
-    "Actualizaciones",
+    "Gestión",
+    "Vialidad",
+    "Ambiente",
+    "Social",
+    "Política",
+    "Turismo",
+    "Seguridad",
+    "Deporte",
 ];
 
 interface News {
@@ -158,7 +158,7 @@ const NewsEditPage = () => {
     const filteredNews = newsList.filter((news) => {
         const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             news.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         let matchesDate = true;
         if (searchDate) {
             const newsDate = new Date(news.createdAt).toISOString().split('T')[0];
@@ -188,7 +188,7 @@ const NewsEditPage = () => {
 
     const confirmDelete = async () => {
         if (!newsToDelete) return;
-        
+
         try {
             const response = await fetch(`/api/news?id=${newsToDelete.id}`, {
                 method: 'DELETE',
@@ -517,9 +517,9 @@ const NewsEditPage = () => {
                                 <TableRow key={news.id} hover>
                                     <TableCell>
                                         {news.image ? (
-                                            <Avatar 
-                                                src={news.image} 
-                                                variant="square" 
+                                            <Avatar
+                                                src={news.image}
+                                                variant="square"
                                                 sx={{ width: 60, height: 60, borderRadius: 1 }}
                                             />
                                         ) : (
@@ -538,10 +538,10 @@ const NewsEditPage = () => {
                                         <Chip label={news.category} size="small" />
                                     </TableCell>
                                     <TableCell>
-                                        <Chip 
-                                            label={news.published ? "Publicada" : "Borrador"} 
+                                        <Chip
+                                            label={news.published ? "Publicada" : "Borrador"}
                                             color={news.published ? "success" : "default"}
-                                            size="small" 
+                                            size="small"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -574,7 +574,7 @@ const NewsEditPage = () => {
                 <DialogTitle>¿Eliminar Noticia?</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        ¿Está seguro que desea eliminar la noticia "{newsToDelete?.title}"? 
+                        ¿Está seguro que desea eliminar la noticia "{newsToDelete?.title}"?
                         Esta acción no se puede deshacer.
                     </Typography>
                 </DialogContent>
