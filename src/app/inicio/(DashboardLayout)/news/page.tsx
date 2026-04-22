@@ -48,6 +48,8 @@ const NewsCreatePage = () => {
     const [success, setSuccess] = useState("");
     const [imagePreview, setImagePreview] = useState("");
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [additionalImages, setAdditionalImages] = useState<File[]>([]);
+    const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const router = useRouter();
     const { data: session } = useSession();
@@ -104,6 +106,38 @@ const NewsCreatePage = () => {
         }
     };
 
+    const handleAdditionalImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            const validFiles = files.filter(file => file.type.startsWith("image/"));
+            
+            if (validFiles.length !== files.length) {
+                setError("Algunos archivos no eran imágenes válidas y fueron ignorados.");
+            }
+
+            const newPreviews: string[] = [];
+            let loaded = 0;
+
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    newPreviews.push(e.target?.result as string);
+                    loaded++;
+                    if (loaded === validFiles.length) {
+                        setAdditionalPreviews(prev => [...prev, ...newPreviews]);
+                        setAdditionalImages(prev => [...prev, ...validFiles]);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeAdditionalImage = (index: number) => {
+        setAdditionalImages(prev => prev.filter((_, i) => i !== index));
+        setAdditionalPreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
     const onSubmit = async (data: any) => {
         if (!session) {
             setError("Debe iniciar sesión para crear noticias.");
@@ -134,6 +168,10 @@ const NewsCreatePage = () => {
                 formData.append("image", data.image);
             }
 
+            additionalImages.forEach(file => {
+                formData.append("additionalImages", file);
+            });
+
             const response = await fetch('/api/news', {
                 method: 'POST',
                 body: formData
@@ -148,6 +186,8 @@ const NewsCreatePage = () => {
             reset();
             setImagePreview("");
             setSelectedImage(null);
+            setAdditionalImages([]);
+            setAdditionalPreviews([]);
 
             setTimeout(() => {
                 router.push("/inicio/news");
@@ -218,7 +258,7 @@ const NewsCreatePage = () => {
                                 />
                                 <label htmlFor="image-upload">
                                     <Button variant="outlined" component="span" startIcon={<IconPhoto />}>
-                                        Seleccionar Archivo
+                                        Seleccionar Portada
                                     </Button>
                                 </label>
                                 {imagePreview && (
@@ -227,10 +267,47 @@ const NewsCreatePage = () => {
                             </Box>
                             <TextField
                                 {...register("image")}
-                                label="O pega una URL de imagen"
+                                label="O pega una URL de imagen para portada"
                                 fullWidth
                                 placeholder="https://..."
                             />
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                            <Typography variant="subtitle1" fontWeight="600" mb={1}>Fotos Adicionales (Galería)</Typography>
+                            <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleAdditionalImagesUpload}
+                                    style={{ display: "none" }}
+                                    id="additional-images-upload"
+                                />
+                                <label htmlFor="additional-images-upload">
+                                    <Button variant="outlined" color="secondary" component="span" startIcon={<IconPhoto />}>
+                                        Agregar Fotos
+                                    </Button>
+                                </label>
+                            </Box>
+                            
+                            {additionalPreviews.length > 0 && (
+                                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2, p: 2, border: '1px dashed #ccc', borderRadius: 1 }}>
+                                    {additionalPreviews.map((preview, index) => (
+                                        <Box key={index} sx={{ position: 'relative' }}>
+                                            <Avatar src={preview} variant="square" sx={{ width: 80, height: 80, borderRadius: 1 }} />
+                                            <IconButton 
+                                                size="small" 
+                                                color="error" 
+                                                sx={{ position: 'absolute', top: -10, right: -10, bgcolor: 'white', '&:hover': { bgcolor: '#f5f5f5' } }}
+                                                onClick={() => removeAdditionalImage(index)}
+                                            >
+                                                <IconX size={16} />
+                                            </IconButton>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            )}
                         </Box>
 
                         <TextField
@@ -293,7 +370,14 @@ const NewsCreatePage = () => {
                 <DialogTitle>¿Limpiar formulario?</DialogTitle>
                 <DialogActions>
                     <Button onClick={() => setConfirmDialogOpen(false)}>No</Button>
-                    <Button onClick={() => { reset(); setImagePreview(""); setConfirmDialogOpen(false); }} color="error">Sí, limpiar</Button>
+                    <Button onClick={() => { 
+                        reset(); 
+                        setImagePreview(""); 
+                        setSelectedImage(null);
+                        setAdditionalImages([]);
+                        setAdditionalPreviews([]);
+                        setConfirmDialogOpen(false); 
+                    }} color="error">Sí, limpiar</Button>
                 </DialogActions>
             </Dialog>
         </Box>

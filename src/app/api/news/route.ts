@@ -51,6 +51,24 @@ export async function POST(request: Request) {
             finalImageUrl = imageFile;
         }
 
+        const additionalImages = formData.getAll('additionalImages');
+        const imageUrls: string[] = [];
+
+        for (const img of additionalImages) {
+            if (img && typeof img !== 'string') {
+                const file = img as File;
+                const timestamp = Date.now();
+                const filename = `${timestamp}-${file.name.replace(/\s+/g, '_')}`;
+
+                const blob = await put(filename, file, {
+                    access: 'public',
+                });
+                imageUrls.push(blob.url);
+            } else if (typeof img === 'string' && img.trim() !== "") {
+                imageUrls.push(img);
+            }
+        }
+
         const news = await prisma.news.create({
             data: {
                 title,
@@ -60,16 +78,14 @@ export async function POST(request: Request) {
                 published,
                 category,
                 image: finalImageUrl,
+                images: {
+                    create: imageUrls.map(url => ({ url }))
+                }
+            },
+            include: {
+                images: true
             }
         });
-
-        // Indexar en el RAG si está publicada
-        // if (published) {
-        //     const contentLine = `Noticia: ${title}. Contenido: ${content}`;
-        //     indexDocument(contentLine, 'noticia', news.id).catch(err => 
-        //         console.error('Error indexing news:', err)
-        //     );
-        // }
 
         return NextResponse.json(news, { status: 201 });
     } catch (error: any) {
@@ -146,6 +162,9 @@ export async function GET(request: Request) {
 
         const news = await prisma.news.findMany({
             where,
+            include: {
+                images: true
+            },
             orderBy: {
                 createdAt: 'desc'
             }
@@ -224,6 +243,37 @@ export async function PUT(request: Request) {
             finalImageUrl = imageFile;
         }
 
+        // Imágenes adicionales nuevas
+        const additionalImages = formData.getAll('additionalImages');
+        const newImageUrls: string[] = [];
+
+        for (const img of additionalImages) {
+            if (img && typeof img !== 'string') {
+                const file = img as File;
+                const timestamp = Date.now();
+                const filename = `${timestamp}-extra-${file.name.replace(/\s+/g, '_')}`;
+                
+                const blob = await put(filename, file, {
+                    access: 'public',
+                });
+                newImageUrls.push(blob.url);
+            } else if (typeof img === 'string' && img.startsWith('http')) {
+                // Si es una URL y no estaba en la base de datos (se maneja en el cliente)
+                // Por simplicidad, aquí solo procesamos archivos o nuevas URLs
+            }
+        }
+
+        // Manejo de eliminación de imágenes existentes si se envían los IDs
+        const removeImageIds = formData.getAll('removeImageIds') as string[];
+        if (removeImageIds.length > 0) {
+            await prisma.newsImage.deleteMany({
+                where: {
+                    id: { in: removeImageIds },
+                    newsId: id
+                }
+            });
+        }
+
         const news = await prisma.news.update({
             where: { id },
             data: {
@@ -234,6 +284,12 @@ export async function PUT(request: Request) {
                 published,
                 category,
                 image: finalImageUrl,
+                images: {
+                    create: newImageUrls.map(url => ({ url }))
+                }
+            },
+            include: {
+                images: true
             }
         });
 

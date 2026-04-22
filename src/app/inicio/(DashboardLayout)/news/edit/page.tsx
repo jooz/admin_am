@@ -69,6 +69,7 @@ interface News {
     category: string;
     createdAt: string;
     updatedAt: string;
+    images?: { id: string, url: string }[];
 }
 
 const NewsEditPage = () => {
@@ -81,6 +82,10 @@ const NewsEditPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchDate, setSearchDate] = useState("");
     const [selectedNews, setSelectedNews] = useState<News | null>(null);
+    const [additionalImages, setAdditionalImages] = useState<File[]>([]);
+    const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
+    const [existingImages, setExistingImages] = useState<{ id: string, url: string }[]>([]);
+    const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [newsToDelete, setNewsToDelete] = useState<News | null>(null);
     const router = useRouter();
@@ -179,6 +184,43 @@ const NewsEditPage = () => {
         setValue("category", news.category);
         setImagePreview(news.image);
         setSelectedImage(null);
+        
+        setExistingImages(news.images || []);
+        setAdditionalImages([]);
+        setAdditionalPreviews([]);
+        setImagesToRemove([]);
+    };
+
+    const handleAdditionalImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            const validFiles = files.filter(file => file.type.startsWith("image/"));
+            const newPreviews: string[] = [];
+            let loaded = 0;
+
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    newPreviews.push(e.target?.result as string);
+                    loaded++;
+                    if (loaded === validFiles.length) {
+                        setAdditionalPreviews(prev => [...prev, ...newPreviews]);
+                        setAdditionalImages(prev => [...prev, ...validFiles]);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeNewImage = (index: number) => {
+        setAdditionalImages(prev => prev.filter((_, i) => i !== index));
+        setAdditionalPreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingImage = (imageId: string) => {
+        setExistingImages(prev => prev.filter(img => img.id !== imageId));
+        setImagesToRemove(prev => [...prev, imageId]);
     };
 
     const handleDeleteClick = (news: News) => {
@@ -239,6 +281,14 @@ const NewsEditPage = () => {
                 formData.append("image", data.image);
             }
 
+            additionalImages.forEach(file => {
+                formData.append("additionalImages", file);
+            });
+
+            imagesToRemove.forEach(id => {
+                formData.append("removeImageIds", id);
+            });
+
             const response = await fetch(`/api/news?id=${selectedNews?.id}`, {
                 method: 'PUT',
                 body: formData
@@ -257,6 +307,10 @@ const NewsEditPage = () => {
                 reset();
                 setImagePreview("");
                 setSelectedImage(null);
+                setAdditionalImages([]);
+                setAdditionalPreviews([]);
+                setExistingImages([]);
+                setImagesToRemove([]);
             }, 2000);
         } catch (err: any) {
             setError(err.message || "Error al actualizar la noticia");
@@ -351,7 +405,7 @@ const NewsEditPage = () => {
                                     />
                                     <label htmlFor="image-upload">
                                         <Button variant="outlined" component="span" startIcon={<IconPhoto />}>
-                                            Seleccionar Archivo
+                                            Seleccionar Portada
                                         </Button>
                                     </label>
                                     {imagePreview && (
@@ -360,10 +414,67 @@ const NewsEditPage = () => {
                                 </Box>
                                 <TextField
                                     {...register("image")}
-                                    label="O pega una URL de imagen"
+                                    label="O pega una URL de imagen para portada"
                                     fullWidth
                                     placeholder="https://..."
                                 />
+                            </Box>
+
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" fontWeight="600" mb={1}>Fotos Adicionales (Galería)</Typography>
+                                
+                                {/* Imágenes Existentes */}
+                                {existingImages.length > 0 && (
+                                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
+                                        {existingImages.map((img) => (
+                                            <Box key={img.id} sx={{ position: 'relative' }}>
+                                                <Avatar src={img.url} variant="square" sx={{ width: 80, height: 80, borderRadius: 1 }} />
+                                                <IconButton 
+                                                    size="small" 
+                                                    color="error" 
+                                                    sx={{ position: 'absolute', top: -10, right: -10, bgcolor: 'white', '&:hover': { bgcolor: '#f5f5f5' } }}
+                                                    onClick={() => removeExistingImage(img.id)}
+                                                >
+                                                    <IconTrash size={16} />
+                                                </IconButton>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                )}
+
+                                <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleAdditionalImagesUpload}
+                                        style={{ display: "none" }}
+                                        id="additional-images-upload"
+                                    />
+                                    <label htmlFor="additional-images-upload">
+                                        <Button variant="outlined" color="secondary" component="span" startIcon={<IconPhoto />}>
+                                            Agregar Fotos
+                                        </Button>
+                                    </label>
+                                </Box>
+                                
+                                {additionalPreviews.length > 0 && (
+                                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2, p: 2, border: '1px dashed #ccc', borderRadius: 1 }}>
+                                        {additionalPreviews.map((preview, index) => (
+                                            <Box key={index} sx={{ position: 'relative' }}>
+                                                <Avatar src={preview} variant="square" sx={{ width: 80, height: 80, borderRadius: 1 }} />
+                                                <IconButton 
+                                                    size="small" 
+                                                    color="error" 
+                                                    sx={{ position: 'absolute', top: -10, right: -10, bgcolor: 'white', '&:hover': { bgcolor: '#f5f5f5' } }}
+                                                    onClick={() => removeNewImage(index)}
+                                                >
+                                                    <IconX size={16} />
+                                                </IconButton>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                )}
                             </Box>
 
                             <TextField

@@ -22,16 +22,27 @@ model User {
 }
 
 model News {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   title     String
-  slug      String   @unique
-  content   String   @db.LongText
-  excerpt   String?  @db.Text
+  slug      String      @unique
+  content   String      @db.LongText
+  excerpt   String?     @db.Text
   image     String?
-  published Boolean  @default(false)
+  published Boolean     @default(false)
   category  String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  images    NewsImage[]
+}
+
+model NewsImage {
+  id        String   @id @default(cuid())
+  url       String
+  newsId    String
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@index([newsId], map: "NewsImage_newsId_fkey")
 }
 
 model Project {
