@@ -69,7 +69,7 @@ export async function POST(request: Request) {
             }
         }
 
-        const news = await prisma.news.create({
+        const news = await (prisma.news as any).create({
             data: {
                 title,
                 slug,
@@ -164,7 +164,7 @@ export async function GET(request: Request) {
             where,
             include: {
                 images: true
-            },
+            } as any,
             orderBy: {
                 createdAt: 'desc'
             }
@@ -274,7 +274,7 @@ export async function PUT(request: Request) {
             });
         }
 
-        const news = await prisma.news.update({
+        const news = await (prisma.news as any).update({
             where: { id },
             data: {
                 title,
